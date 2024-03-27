@@ -207,7 +207,8 @@ def help():
     return help_text
 
 #print one contact
-def print_contact(contact):
+def print_contact(contact, number):
+    print(number, end=': ')
     print('Name: ', contact.name.value, ' | ',end='')
     print('Address: ', contact.address.value, ' | ', end='')
     print('Phone: ', contact.phone.value, ' | ', end='')
@@ -254,8 +255,18 @@ def find(args, contacts):
                        
 
         #print what was found
+        count = 0
         for key in found_contacts:
-            print_contact(found_contacts[key])
+            count += 1
+            print_contact(found_contacts[key], count)
+
+        #choice one of the found contacts
+        choosen_contact = {}
+        while True:
+            question = input('Choice one of the found contacts: (0: Exit)')
+            if 1 <= question >= count:
+                choosen_contact = found_contacts[question-1]
+                break
         
         #Loop - what to do with found contacts
         while True:
