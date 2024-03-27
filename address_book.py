@@ -78,16 +78,23 @@ class Record:
     def __str__(self):
         return f'Contact name: {self.name.value}, phone: {self.phone}'
 
+    def add_address(self, address):
+        self.address = Address(address)
+
     def add_phone(self, phone):
-        self.phone = Phone(phone)
+        self.phone =  Phone(phone)    
+
+    def add_email(self, email):
+        self.email =  Email(email)
 
     def add_birthday(self, birthday):
         self.birthday =  Birthday(birthday)
-
+    
+    
 
 class AddressBook(UserDict):
     def add_record(self, record):
-        self.data[record.name.value] = record
+        self.data[record.id] = record
     
     def find(self, name):
         if self.data.get(name, False):

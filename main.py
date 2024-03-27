@@ -36,7 +36,7 @@ def get_phonebook_list(contacts):
     contacts_string += separator * 2
 
     for key in contacts:
-        contacts_string += '|{name:^{name_width}}|{phone:^{phone_width}}|\n'.format(name=key, name_width=max_key_len + 4, phone=contacts[key].phone.value, phone_width=max_contact_len + 4)
+        contacts_string += '{name:^{name_width}}|{phone:^{phone_width}}|\n'.format(name=key, name_width=max_key_len + 4, phone=contacts[key].phone.value, phone_width=max_contact_len + 4)
         contacts_string += separator
 
     return contacts_string
@@ -67,16 +67,47 @@ def input_error(func):
 
 
 @input_error
-def add_contact(args, contacts):
-    name, phone = args
-
-    if contacts.find(name) == -1:
+def add_contact(args, contacts): #add contact by add command and only 1 argument [name]
+        if len(args) == 0:
+            return 'Please, enter a name of contact, which you want to add!'
+        name = args[0] 
         contact = Record(name)
-        contact.add_phone(phone)
+
+        #add address
+        input_address = input('Enter address: (0 or ENTER to exit)')
+        if input_address in ['0','']:
+            contacts.add_record(contact)
+            return 'User exited without adding address.'
+        contact.add_address(input_address)
+
+        #phone number
+        input_phone = input('Enter phone number: (0 or ENTER to exit)')
+        if input_address in ['0','']:
+            contacts.add_record(contact)
+            return 'User exited without adding phone number.'
+        contact.add_phone(input_phone)
+
+        #email
+        input_email = input('Enter email: (0 or ENTER to exit)')
+        if input_email in ['0','']:
+            contacts.add_record(contact)
+            return 'User exited without adding email.'
+        contact.add_email(input_email)
+
+        #bithday
+        input_birthday = input('Enter date of birthday in format: dd.mm.yyyy (0 or ENTER to exit):')
+        if input_birthday in ['0','']:
+            contacts.add_record(contact)
+            return 'User exited without adding day of birthday .'
+        contact.add_birthday(input_birthday)
+
+        #add contact to contacts
         contacts.add_record(contact)
+        save_address_book(contacts)
+
         return 'Contact added.'
     
-    raise ContactExistsError
+    
 
 
 @input_error      
@@ -174,6 +205,58 @@ def help():
 
     return help_text
 
+#add find function
+def find(args, contacts):
+    #if args is empty return warning
+    if len(args) == 0:
+        return 'Please, enter a value to find! I don\'t know what to look for!'
+    #if args is not empty
+    else:
+        #get the value from args
+        value = args[0]
+        print('Szukane wyrażanie: ', value)
+        #Iterate through contacts
+        found_contacts = {}
+        for key in contacts:
+            #if value is in name
+            if contacts[key].name.value == value:
+                found_contacts[key] = contacts[key]
+
+            #if value is in address
+            if contacts[key].address.value == value:
+                found_contacts[key] = contacts[key]                            
+
+            #if value is in phone
+            if contacts[key].phone.value == value:
+                found_contacts[key] = contacts[key]
+            
+            #if value is in email
+            if contacts[key].email.value == value:
+                found_contacts[key] = contacts[key]
+            
+            #if value is in birthday
+            if contacts[key].birthday.value == value:
+                found_contacts[key] = contacts[key]
+                       
+
+        #print what was found
+        print('Found contacts: ', found_contacts)   
+        
+        #Pętla pytająca czy chcesz zobaczyć szczegóły znalezionych kontaktów, edycja usuwanie itp
+        while True:
+            question = input('Do you want to see details of found contacts? (Y/N)')
+            
+            
+            if question == 'N':
+                break
+
+
+        return "Done"
+
+        
+        
+# end find function________________________
+
 
 def main():
     contacts = load_address_book()
@@ -205,6 +288,9 @@ def main():
                 print(get_birthdays(args, contacts))
             elif command == 'help':
                 print(help())
+            #add find command
+            elif command == 'find':
+                print(find(args, contacts))
             else:
                 print('Invalid command.')   
         except ValueError:
