@@ -5,6 +5,7 @@ import pickle
 from pathlib import Path
 
 
+
 def parse_input(user_input):
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
@@ -205,6 +206,19 @@ def help():
 
     return help_text
 
+#print one contact
+def print_contact(contact):
+    print('Name: ', contact.name.value, ' | ',end='')
+    print('Address: ', contact.address.value, ' | ', end='')
+    print('Phone: ', contact.phone.value, ' | ', end='')
+    print('Email: ', contact.email.value, ' | ',end='')
+    print('Birthday: ', contact.birthday.value, ' | ', end='')
+    print('Note tags: ', end='')
+    if hasattr(contact,'notes'):
+        for key in contact.notes.keys():
+            print(key,', ',end='')
+    print('')
+
 #add find function
 def find(args, contacts):
     #if args is empty return warning
@@ -240,16 +254,28 @@ def find(args, contacts):
                        
 
         #print what was found
-        print('Found contacts: ', found_contacts)   
+        for key in found_contacts:
+            print_contact(found_contacts[key])
         
-        #Pętla pytająca czy chcesz zobaczyć szczegóły znalezionych kontaktów, edycja usuwanie itp
+        #Loop - what to do with found contacts
         while True:
-            question = input('Do you want to see details of found contacts? (Y/N)')
-            
-            
-            if question == 'N':
+            question = input('What do you want to do with found contacts?\n'
+                             '0: Exit | 1: Change address | 2: Change phone | '
+                             '3: Change email | 4: Change birthday | 5: Change note\n')
+            if question in ['0','']:
                 break
-
+            elif question == '1':
+                pass
+            elif question == '2':
+                pass
+            elif question == '3':
+                pass
+            elif question == '4':
+                pass
+            elif question == '5':
+                pass
+            
+                     
 
         return "Done"
 
