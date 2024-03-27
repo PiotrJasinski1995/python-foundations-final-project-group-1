@@ -208,11 +208,12 @@ def help():
 
 #print one contact
 def print_contact(contact, number):
-    print(number, end=': ')
-    print('Name: ', contact.name.value, ' | ',end='')
-    print('Address: ', contact.address.value, ' | ', end='')
-    print('Phone: ', contact.phone.value, ' | ', end='')
-    print('Email: ', contact.email.value, ' | ',end='')
+    if number > 0:
+        print(number, end=': ')
+    print('Name: ', contact.name, ' | ',end='')
+    print('Address: ', contact.address, ' | ', end='')
+    print('Phone: ', contact.phone, ' | ', end='')
+    print('Email: ', contact.email, ' | ',end='')
     print('Birthday: ', contact.birthday.value, ' | ', end='')
     print('Note tags: ', end='')
     if hasattr(contact,'notes'):
@@ -229,7 +230,7 @@ def find(args, contacts):
     else:
         #get the value from args
         value = args[0]
-        print('Szukane wyrażanie: ', value)
+        #print('Szukane wyrażanie: ', value)
         #Iterate through contacts
         found_contacts = {}
         for key in contacts:
@@ -256,18 +257,25 @@ def find(args, contacts):
 
         #print what was found
         count = 0
+        
+        dict_with_chosen_keys = {} #tutaj zapiszemy klucze ze znalezionych kontaktów
         for key in found_contacts:
             count += 1
             print_contact(found_contacts[key], count)
+            dict_with_chosen_keys[count] = key # musi być bo nie można iterować po słowniku
 
         #choice one of the found contacts
         choosen_contact = {}
         while True:
-            question = input('Choice one of the found contacts: (0: Exit)')
-            if 1 <= question >= count:
-                choosen_contact = found_contacts[question-1]
+            question = int(input('Choice one of the found contacts: (0: Exit)'))
+            if 1 <= question <= count:
+                choosen_key = dict_with_chosen_keys[question]
+                choosen_contact[choosen_key] = found_contacts[choosen_key] #wybieramy kontakt
+                print_contact(choosen_contact[choosen_key], count)
                 break
-        
+            elif question == 0:
+                break
+            
         #Loop - what to do with found contacts
         while True:
             question = input('What do you want to do with found contacts?\n'
