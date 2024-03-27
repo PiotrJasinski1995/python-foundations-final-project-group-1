@@ -5,6 +5,7 @@ import pickle
 from pathlib import Path
 
 
+
 def parse_input(user_input):
     cmd, *args = user_input.split()
     cmd = cmd.strip().lower()
@@ -36,7 +37,7 @@ def get_phonebook_list(contacts):
     contacts_string += separator * 2
 
     for key in contacts:
-        contacts_string += '|{name:^{name_width}}|{phone:^{phone_width}}|\n'.format(name=key, name_width=max_key_len + 4, phone=contacts[key].phone.value, phone_width=max_contact_len + 4)
+        contacts_string += '{name:^{name_width}}|{phone:^{phone_width}}|\n'.format(name=key, name_width=max_key_len + 4, phone=contacts[key].phone.value, phone_width=max_contact_len + 4)
         contacts_string += separator
 
     return contacts_string
@@ -67,16 +68,47 @@ def input_error(func):
 
 
 @input_error
-def add_contact(args, contacts):
-    name, phone = args
-
-    if contacts.find(name) == -1:
+def add_contact(args, contacts): #add contact by add command and only 1 argument [name]
+        if len(args) == 0:
+            return 'Please, enter a name of contact, which you want to add!'
+        name = args[0] 
         contact = Record(name)
-        contact.add_phone(phone)
+
+        #add address
+        input_address = input('Enter address: (0 or ENTER to exit)')
+        if input_address in ['0','']:
+            contacts.add_record(contact)
+            return 'User exited without adding address.'
+        contact.add_address(input_address)
+
+        #phone number
+        input_phone = input('Enter phone number: (0 or ENTER to exit)')
+        if input_address in ['0','']:
+            contacts.add_record(contact)
+            return 'User exited without adding phone number.'
+        contact.add_phone(input_phone)
+
+        #email
+        input_email = input('Enter email: (0 or ENTER to exit)')
+        if input_email in ['0','']:
+            contacts.add_record(contact)
+            return 'User exited without adding email.'
+        contact.add_email(input_email)
+
+        #bithday
+        input_birthday = input('Enter date of birthday in format: dd.mm.yyyy (0 or ENTER to exit):')
+        if input_birthday in ['0','']:
+            contacts.add_record(contact)
+            return 'User exited without adding day of birthday .'
+        contact.add_birthday(input_birthday)
+
+        #add contact to contacts
         contacts.add_record(contact)
+        save_address_book(contacts)
+
         return 'Contact added.'
     
-    raise ContactExistsError
+    
 
 
 @input_error      
@@ -174,6 +206,94 @@ def help():
 
     return help_text
 
+#print one contact
+def print_contact(contact, number):
+    print(number, end=': ')
+    print('Name: ', contact.name.value, ' | ',end='')
+    print('Address: ', contact.address.value, ' | ', end='')
+    print('Phone: ', contact.phone.value, ' | ', end='')
+    print('Email: ', contact.email.value, ' | ',end='')
+    print('Birthday: ', contact.birthday.value, ' | ', end='')
+    print('Note tags: ', end='')
+    if hasattr(contact,'notes'):
+        for key in contact.notes.keys():
+            print(key,', ',end='')
+    print('')
+
+#add find function
+def find(args, contacts):
+    #if args is empty return warning
+    if len(args) == 0:
+        return 'Please, enter a value to find! I don\'t know what to look for!'
+    #if args is not empty
+    else:
+        #get the value from args
+        value = args[0]
+        print('Szukane wyrażanie: ', value)
+        #Iterate through contacts
+        found_contacts = {}
+        for key in contacts:
+            #if value is in name
+            if contacts[key].name.value == value:
+                found_contacts[key] = contacts[key]
+
+            #if value is in address
+            if contacts[key].address.value == value:
+                found_contacts[key] = contacts[key]                            
+
+            #if value is in phone
+            if contacts[key].phone.value == value:
+                found_contacts[key] = contacts[key]
+            
+            #if value is in email
+            if contacts[key].email.value == value:
+                found_contacts[key] = contacts[key]
+            
+            #if value is in birthday
+            if contacts[key].birthday.value == value:
+                found_contacts[key] = contacts[key]
+                       
+
+        #print what was found
+        count = 0
+        for key in found_contacts:
+            count += 1
+            print_contact(found_contacts[key], count)
+
+        #choice one of the found contacts
+        choosen_contact = {}
+        while True:
+            question = input('Choice one of the found contacts: (0: Exit)')
+            if 1 <= question >= count:
+                choosen_contact = found_contacts[question-1]
+                break
+        
+        #Loop - what to do with found contacts
+        while True:
+            question = input('What do you want to do with found contacts?\n'
+                             '0: Exit | 1: Change address | 2: Change phone | '
+                             '3: Change email | 4: Change birthday | 5: Change note\n')
+            if question in ['0','']:
+                break
+            elif question == '1':
+                pass
+            elif question == '2':
+                pass
+            elif question == '3':
+                pass
+            elif question == '4':
+                pass
+            elif question == '5':
+                pass
+            
+                     
+
+        return "Done"
+
+        
+        
+# end find function________________________
+
 
 def main():
     contacts = load_address_book()
@@ -205,6 +325,9 @@ def main():
                 print(get_birthdays(args, contacts))
             elif command == 'help':
                 print(help())
+            #add find command
+            elif command == 'find':
+                print(find(args, contacts))
             else:
                 print('Invalid command.')   
         except ValueError:
