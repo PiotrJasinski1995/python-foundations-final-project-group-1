@@ -1,8 +1,13 @@
 from collections import UserDict
 import re
+import nanoid
 
 
 class PhoneFormatException(Exception):
+    pass
+
+
+class EmailFormatException(Exception):
     pass
 
 
@@ -26,13 +31,27 @@ class Name(Field):
     pass
 
 
+class Address(Field):
+    pass
+
+
 class Phone(Field):
     def __init__(self, value):
         match = re.fullmatch('\\d{10}', value)
 
-        # Exception for future error handling
         if match == None:
             raise PhoneFormatException
+
+        super().__init__(value)
+
+
+class Email(Field):
+    def __init__(self, value):
+        email_validate_pattern = r"^\S+@\S+\.\S+$"
+        match = re.fullmatch(email_validate_pattern, value)
+        
+        if match == None:
+            raise EmailFormatException
 
         super().__init__(value)
 
@@ -41,7 +60,6 @@ class Birthday(Field):
     def __init__(self, value):
         match = re.fullmatch('\\d{2}.\\d{2}.\\d{4}$', value)
 
-        # Exception for future error handling
         if match == None:
             raise DateFormatException
 
@@ -50,8 +68,11 @@ class Birthday(Field):
 
 class Record:
     def __init__(self, name):
+        self.id = nanoid.generate()
         self.name = Name(name)
-        self.phone = ''
+        self.address = None
+        self.phone = None      
+        self.email = None
         self.birthday = None
 
     def __str__(self):

@@ -57,6 +57,8 @@ def input_error(func):
             return 'Contact does not exists!'
         except PhoneFormatException:
             return 'Number should contain 10 digits!'
+        except EmailFormatException:
+            return 'Wrong email address format!'
         except DateFormatException:
             return 'Date should be given in DD.MM.YYYY format!'
         except ContactExistsError:
