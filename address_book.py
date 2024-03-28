@@ -49,7 +49,7 @@ class Email(Field):
     def __init__(self, value):
         email_validate_pattern = r"^\S+@\S+\.\S+$"
         match = re.fullmatch(email_validate_pattern, value)
-        
+
         if match == None:
             raise EmailFormatException
 
@@ -65,6 +65,7 @@ class Birthday(Field):
 
         super().__init__(value)
 
+
 class Notes(Field):
     def __init__(self, value):
         super().__init__(value)
@@ -75,7 +76,7 @@ class Record:
         self.id = nanoid.generate()
         self.name = Name(name)
         self.address = None
-        self.phone = None      
+        self.phone = None
         self.email = None
         self.birthday = None
         self.notes = [{}] # dict of notes {(tags jako tupla): note}
@@ -87,25 +88,24 @@ class Record:
         self.address = Address(address)
 
     def add_phone(self, phone):
-        self.phone =  Phone(phone)    
+        self.phone = Phone(phone)
 
     def add_email(self, email):
-        self.email =  Email(email)
+        self.email = Email(email)
 
     def add_birthday(self, birthday):
-        self.birthday =  Birthday(birthday)
-    
+        self.birthday = Birthday(birthday)
+
     def add_note(self, notes):
         self.notes = Notes(notes)
-    
-    
+
 
 class AddressBook(UserDict):
     def add_record(self, record):
         self.data[record.id] = record
-    
+
     def find(self, name):
         if self.data.get(name, False):
             return self.data[name]
-        
+
         return -1
