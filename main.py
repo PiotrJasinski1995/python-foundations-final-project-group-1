@@ -22,7 +22,7 @@ def get_phonebook_list(contacts):
     for key, record in contacts.items():
         result += "\n" + str(record.name).ljust(field_width) + "|" + str(record.address).ljust(field_width) + "|" +\
                   str(record.phone).ljust(field_width) + "|" + str(record.email).ljust(field_width) + "|" + \
-                  str(record.birthday).ljust(field_width) + "|" + str(record.notes)
+                  str(record.birthday).ljust(field_width) + "|" + str(record.notes.tag)
 
     return result
 
@@ -162,7 +162,11 @@ def load_address_book():
 
     if file_path.is_file():
         with open(file_name, 'rb') as file:
-            return pickle.load(file)
+            try:
+                return pickle.load(file)
+            except EOFError:
+                print('Address book is empty.')
+                return AddressBook()
 
     return AddressBook()
 
@@ -199,10 +203,11 @@ def print_contact(contact):
     print('Phone: ', contact.phone.value, ' | ', end='')
     print('Email: ', contact.email.value, ' | ', end='')
     print('Birthday: ', contact.birthday.value, ' | ', end='')
-    print('Note tags: ', end='')
+    print('Note: ', end='')
     if hasattr(contact, 'notes'):
-        for key in contact.notes:
-            print(key, ', ', end='')
+        if contact.notes != {}:
+            print('tag: ', contact.notes.tag, ' | ', end='')
+            print('note: ', contact.notes.note)
     print('')
 
 
@@ -217,7 +222,6 @@ def find(args, contacts):
         value = args[0]
         print('Searched phrase: ', value)
         # Iterate through contacts
-        count = 1
         map_id_to_index_dict = {}
         found_contacts = {}
         for key in contacts:
@@ -241,75 +245,92 @@ def find(args, contacts):
             # if value is in birthday
             if contacts[key].birthday.value == value:
                 found_contacts[key] = contacts[key]
+            
+            #if value is in note
+            if hasattr(contacts[key], 'notes'):
+                if contacts[key].notes != {}:
+                    if value in contacts[key].notes.tag or value in contacts[key].notes.note:
+                        found_contacts[key] = contacts[key]
 
 
         # print what was found
-
+        count = 0
         for key in found_contacts:
+            count += 1
             print(count, end=") ")
             map_id_to_index_dict[count] = key
             print_contact(found_contacts[key])
-            count += 1
 
-        user_key = int(input('Which contact do you want to edit/remove? or 0: Exit '))
+        if count == 0:
+            return "No contacts found."
+        elif count >= 1:
+            user_key = 1 #przypisz wartość 1 - wybór pierwszego/jedynego kontaktu
+            if count > 1:
+                user_key = int(input('Which contact do you want to edit/remove? or 0: Exit '))
 
-        # Loop - what to do with found contacts
-        while True:
-            if user_key == 0:
-                break
+            # Loop - what to do with found contacts
+            while True:
+                if user_key == 0:
+                    break
 
-            user = map_id_to_index_dict[user_key]
-            print(f"You've chosen: ", end=" ")
-            print_contact(found_contacts[user])
+                user = map_id_to_index_dict[user_key]
+                if count > 1:
+                    print(f"You've chosen: ", end=" ")
+                else:
+                    print("Found contact: ", end=" ")
+                print_contact(found_contacts[user])
 
-            operation = input('What do you want to do with this contact?\n'
+                operation = input('What do you want to do with this contact?\n'
                               '0: Exit | 1: Change record | 2: Remove record | '
                               '3: Remove data from record\n')
 
-            if operation in ['0', '']:
-                break
-            elif operation == '1':
-                operation = input('What field do you want to change?\n'
-                                  '0: Exit | 1: Name | 2: Address | 3: Phone | '
-                                  '4: Email | 5: Birthday | 6: Note\n')
-                question = input('Provide a new value for the field: ')
                 if operation in ['0', '']:
                     break
                 elif operation == '1':
-                    contacts[user].name = Name(question)
+                    operation = input('What field do you want to change?\n'
+                                  '0: Exit | 1: Name | 2: Address | 3: Phone | '
+                                  '4: Email | 5: Birthday | 6: Note\n')
+                    question = input('Provide a new value for the field: ')
+                    if operation in ['0', '']:
+                        break
+                    elif operation == '1':
+                        contacts[user].name = Name(question)
+                    elif operation == '2':
+                        contacts[user].address = Address(question)
+                    elif operation == '3':
+                        contacts[user].phone = Phone(question)
+                    elif operation == '4':
+                        contacts[user].email = Email(question)
+                    elif operation == '5':
+                        contacts[user].birthday = Birthday(question)
+                    elif operation == '6':
+                        noteKey = input('Provide a tag for the note: ')
+                        if noteKey == '':
+                            noteKey = 'Default tag name'
+                        contacts[user].notes = Notes(noteKey, question)
+                    print("Field changed.")
                 elif operation == '2':
-                    contacts[user].address = Address(question)
+                    del contacts[user]
+                    print("Record deleted.")
                 elif operation == '3':
-                    contacts[user].phone = Phone(question)
-                elif operation == '4':
-                    contacts[user].email = Email(question)
-                elif operation == '5':
-                    contacts[user].birthday = Birthday(question)
-                elif operation == '6':
-                    pass
-                print("Field changed.")
-            elif operation == '2':
-                del contacts[user]
-                print("Record deleted.")
-            elif operation == '3':
-                question = input('What field do you want to remove?\n'
+                    question = input('What field do you want to remove?\n'
                                  '0: Exit | 1: Address | 2: Phone | '
                                  '3: Email | 4: Birthday | 5: Note\n')
-                if question in ['0', '']:
-                    break
-                elif question == '1':
-                    contacts[user].address.value = ""
-                elif question == '2':
-                    contacts[user].phone.value = ""
-                elif question == '3':
-                    contacts[user].email.value = ""
-                elif question == '4':
-                    contacts[user].birthday.value = ""
-                elif question == '5':
-                    pass
-                print("Field removed.")
+                    if question in ['0', '']:
+                        break
+                    elif question == '1':
+                        contacts[user].address.value = ""
+                    elif question == '2':
+                        contacts[user].phone.value = ""
+                    elif question == '3':
+                        contacts[user].email.value = ""
+                    elif question == '4':
+                        contacts[user].birthday.value = ""
+                    elif question == '5':
+                        pass
+                    print("Field removed.")
 
-            save_address_book(contacts)
+                save_address_book(contacts)
 
         return "Done"
 
