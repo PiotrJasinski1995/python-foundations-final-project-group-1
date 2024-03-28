@@ -78,7 +78,7 @@ class Record:
         self.phone = None      
         self.email = None
         self.birthday = None
-        self.notes = [{}] # dict of notes {tagname: note}
+        self.notes = [{}] # dict of notes {(tags jako tupla): note}
 
     def __str__(self):
         return f'Contact name: {self.name.value}, phone: {self.phone}'
