@@ -192,7 +192,6 @@ def help():
 
     return help_text
 
-
 # print one contact
 def print_contact(contact):
     print('Name: ', contact.name.value, ' | ', end='')
@@ -243,7 +242,9 @@ def find(args, contacts):
             if contacts[key].birthday.value == value:
                 found_contacts[key] = contacts[key]
 
+
         # print what was found
+
         for key in found_contacts:
             print(count, end=") ")
             map_id_to_index_dict[count] = key
