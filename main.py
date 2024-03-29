@@ -59,34 +59,71 @@ def add_contact(args, contacts):  # add contact by add command and only 1 argume
     name = args[0]
     contact = Record(name)
 
-    # add address
-    input_address = input('Enter address (0 or ENTER to exit):\n')
-    if input_address in ['0', '']:
-        contacts.add_record(contact)
-        return 'User exited without adding address.'
-    contact.add_address(input_address)
-
     # phone number
-    input_phone = input('Enter phone number (0 or ENTER to exit):\n')
-    if input_phone in ['0', '']:
-        contacts.add_record(contact)
-        return 'User exited without adding phone number.'
-    contact.add_phone(input_phone)
-    
+    while True:
+        input_phone = input('Enter phone number (0: exit, ENTER: skip current):\n')
+        if input_phone in ['0']:
+            contacts.add_record(contact)
+            return 'User exited without adding phone number, email, address and birthday.'
+        elif input_phone == '':
+            print('Phone number omitted!')
+            break
+        else: # if phone number is not empty
+            try:
+                contact.add_phone(input_phone)
+                break
+            except PhoneFormatException:
+                print('Number should contain 10 digits!')
+
 
     # email
-    input_email = input('Enter email (0 or ENTER to exit):\n')
-    if input_email in ['0', '']:
-        contacts.add_record(contact)
-        return 'User exited without adding email.'
-    contact.add_email(input_email)
+    while True:
+        input_email = input('Enter email (0: exit, ENTER: skip current):\n')
+        if input_email in ['0']:
+            contacts.add_record(contact)
+            return 'User exited without adding email, address and birthday.'
+        elif input_email == '':
+            print('Email omitted!')
+            break
+        else: # if email is not empty
+            try:
+                contact.add_email(input_email)
+                break
+            except EmailFormatException:
+                print('Wrong email address format!')
+        
+
+    # add address
+    while True:
+        input_address = input('Enter address (0: exit, ENTER: skip current):\n')
+        if input_address in ['0']:
+            contacts.add_record(contact)
+            return 'User exited without adding address and birthday.'
+        elif input_address == '':
+            print('Address omitted!')
+            break   
+        else: # if address is not empty
+            contact.add_address(input_address)
+            break
+        
+            
 
     # birthday
-    input_birthday = input('Enter date of birthday in format YYYY-MM-DD (0 or ENTER to exit):\n')
-    if input_birthday in ['0', '']:
-        contacts.add_record(contact)
-        return 'User exited without adding day of birthday.'
-    contact.add_birthday(input_birthday)
+    while True:
+        input_birthday = input('Enter date of birthday in format YYYY-MM-DD (0: exit, ENTER: skip current):\n')
+        if input_birthday in ['0']:
+            contacts.add_record(contact)
+            return 'User exited without adding day of birthday.'
+        elif input_birthday == '':
+            print('Birthday omitted!')
+            break
+        else: # if birthday is not empty
+            try:
+                contact.add_birthday(input_birthday)
+                break
+            except DateFormatException:
+                print('Date should be given in YYYY-MM-DD format!')
+
 
     # add contact to contacts
     contacts.add_record(contact)
@@ -227,11 +264,11 @@ def help():
 
 # print one contact
 def print_contact(contact):
-    print('Name: ', contact.name.value, ' | ', end='')
-    print('Address: ', contact.address.value, ' | ', end='')
-    print('Phone: ', contact.phone.value, ' | ', end='')
-    print('Email: ', contact.email.value, ' | ', end='')
-    print('Birthday: ', contact.birthday.value, ' | ', end='')
+    print('Name: ', str(contact.name), ' | ', end='')
+    print('Address: ', str(contact.address), ' | ', end='')
+    print('Phone: ', str(contact.phone), ' | ', end='')
+    print('Email: ', str(contact.email), ' | ', end='')
+    print('Birthday: ', str(contact.birthday), ' | ', end='')
     print('Note: ', end='')
     if hasattr(contact, 'notes'):
         if contact.notes != {}:
@@ -255,24 +292,23 @@ def find(args, contacts):
         found_contacts = {}
         for key in contacts:
             # if value is in name
-            # print(contacts)
-            if contacts[key].name.value == value:
+            if str(contacts[key].name) == value: # if value is '' then error
                 found_contacts[key] = contacts[key]
 
             # if value is in address
-            if contacts[key].address.value == value:
+            if str(contacts[key].address) == value:
                 found_contacts[key] = contacts[key]
 
             # if value is in phone
-            if contacts[key].phone.value == value:
+            if str(contacts[key].phone) == value:
                 found_contacts[key] = contacts[key]
 
             # if value is in email
-            if contacts[key].email.value == value:
+            if str(contacts[key].email) == value:
                 found_contacts[key] = contacts[key]
 
             # if value is in birthday
-            if contacts[key].birthday.value == value:
+            if str(contacts[key].birthday) == value:
                 found_contacts[key] = contacts[key]
             
             #if value is in note
