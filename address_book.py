@@ -58,7 +58,7 @@ class Email(Field):
 
 class Birthday(Field):
     def __init__(self, value):
-        match = re.fullmatch('\\d{2}.\\d{2}.\\d{4}$', value)
+        match = re.fullmatch('\\d{4}-\\d{2}-\\d{2}$', value)
 
         if match == None:
             raise DateFormatException
@@ -67,7 +67,7 @@ class Birthday(Field):
 
 
 class Notes(): # class for notes - nie dziedziczy po Field, bo nie ma sensu
-    def __init__(self, tag, note):
+    def __init__(self, tag='', note=''):
         self.tag = tag
         self.note = note
         
@@ -76,10 +76,10 @@ class Record:
     def __init__(self, name):
         self.id = nanoid.generate()
         self.name = Name(name)
-        self.address = None
-        self.phone = None
-        self.email = None
-        self.birthday = None
+        self.address = ''
+        self.phone = ''
+        self.email = ''
+        self.birthday = ''
         self.notes = {} # dict of note {tag: note}
 
     def __str__(self):
