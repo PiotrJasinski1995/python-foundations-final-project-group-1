@@ -1,6 +1,5 @@
 from address_book import *
-from birthday_function import get_birthday_per_week
-from datetime import datetime
+from datetime import datetime, timedelta
 import pickle
 from pathlib import Path
 
@@ -19,16 +18,17 @@ def get_phonebook_list(contacts):
               "|" + "Email".ljust(field_width) + "|" + "Birthday".ljust(field_width) + "|" + "Notes\n"
     result += "-" * (field_width * 6)
 
-    for key, record in contacts.items():
+    for record in contacts.values():
+        note_string = str(record.notes.tag) if record.notes else ''
         result += "\n" + str(record.name).ljust(field_width) + "|" + str(record.address).ljust(field_width) + "|" +\
                   str(record.phone).ljust(field_width) + "|" + str(record.email).ljust(field_width) + "|" + \
-                  str(record.birthday).ljust(field_width) + "|" + str(record.notes.tag)
+                  str(record.birthday).ljust(field_width) + "|" + note_string
 
     return result
 
 
 def get_birthday_contact(contact):
-    return {'name': contact.name.value, 'birthday': datetime.strptime(contact.birthday.value, '%d.%m.%Y')}
+    return {'name': contact.name.value, 'birthday': contact.birthday.value}
 
 
 def input_error(func):
@@ -45,7 +45,7 @@ def input_error(func):
         except EmailFormatException:
             return 'Wrong email address format!'
         except DateFormatException:
-            return 'Date should be given in DD.MM.YYYY format!'
+            return 'Date should be given in YYYY-MM-DD format!'
         except ContactExistsError:
             return 'Contact already exists!'
 
@@ -60,36 +60,37 @@ def add_contact(args, contacts):  # add contact by add command and only 1 argume
     contact = Record(name)
 
     # add address
-    input_address = input('Enter address: (0 or ENTER to exit)')
+    input_address = input('Enter address (0 or ENTER to exit):\n')
     if input_address in ['0', '']:
         contacts.add_record(contact)
         return 'User exited without adding address.'
     contact.add_address(input_address)
 
     # phone number
-    input_phone = input('Enter phone number: (0 or ENTER to exit)')
-    if input_address in ['0', '']:
+    input_phone = input('Enter phone number (0 or ENTER to exit):\n')
+    if input_phone in ['0', '']:
         contacts.add_record(contact)
         return 'User exited without adding phone number.'
     contact.add_phone(input_phone)
+    
 
     # email
-    input_email = input('Enter email: (0 or ENTER to exit)')
+    input_email = input('Enter email (0 or ENTER to exit):\n')
     if input_email in ['0', '']:
         contacts.add_record(contact)
         return 'User exited without adding email.'
     contact.add_email(input_email)
 
     # birthday
-    input_birthday = input('Enter date of birthday in format: dd.mm.yyyy (0 or ENTER to exit):')
+    input_birthday = input('Enter date of birthday in format YYYY-MM-DD (0 or ENTER to exit):\n')
     if input_birthday in ['0', '']:
         contacts.add_record(contact)
-        return 'User exited without adding day of birthday .'
+        return 'User exited without adding day of birthday.'
     contact.add_birthday(input_birthday)
 
     # add contact to contacts
     contacts.add_record(contact)
-    save_address_book(contacts)
+    # save_address_book(contacts)
 
     return 'Contact added.'
 
@@ -138,15 +139,43 @@ def get_birthday(args, contacts):
 
 
 def get_birthdays(args, contacts):
-    if len(args) != 0:
-        return 'You should not put any arguments in "birthdays" command!'
+    (days_text,) = args
 
+    days = int(days_text)
+    
     if not contacts:
         return 'No contacts in phonebook!!!'
 
-    filter_list = filter(lambda contact: contact.birthday != None, contacts.data.values())
-    contact_dict = map(get_birthday_contact, filter_list)
-    return get_birthday_per_week(contact_dict)
+    filter_list = filter(lambda contact: contact.birthday != '', contacts.data.values())
+    filter_list = list(filter_list)
+    filter_list = filter(lambda contact: check_birthday(contact.birthday.value, days), filter_list)
+    contact_dict = list(map(get_birthday_contact, filter_list))
+
+    if not contact_dict:
+        return 'No celebration in this data range'
+
+    field_width = 15
+    birthday_text = ''
+    birthday_text += "Name".ljust(field_width) + "|" + "Birthday".ljust(field_width) + "\n"
+    birthday_text += "-" * (field_width * 2)
+
+    for contact in contact_dict:
+        birthday_text += "\n" + str(contact['name']).ljust(field_width) + "|" + str(contact['birthday']).ljust(field_width)
+
+    
+    return birthday_text
+
+
+def check_birthday(string_date, days):
+    current_date = datetime.today().date()
+    birthday_date = datetime.strptime(string_date, '%Y-%m-%d').date()
+    stop_date = current_date + timedelta(days=days)
+    birthday_date = birthday_date.replace(year=current_date.year)
+
+    if birthday_date < current_date:
+        birthday_date = birthday_date.replace(year=current_date.year + 1)
+
+    return birthday_date <= stop_date
 
 
 def save_address_book(contacts):
@@ -329,8 +358,6 @@ def find(args, contacts):
                     elif question == '5':
                         pass
                     print("Field removed.")
-
-                save_address_book(contacts)
 
         return "Done"
 
