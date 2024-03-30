@@ -66,11 +66,11 @@ class Birthday(Field):
         super().__init__(value)
 
 
-class Notes(): # class for notes - nie dziedziczy po Field, bo nie ma sensu
+class Notes():  # class for notes - nie dziedziczy po Field, bo nie ma sensu
     def __init__(self, tag='', note=''):
         self.tag = tag
         self.note = note
-        
+
 
 class Record:
     def __init__(self, name):
@@ -80,7 +80,7 @@ class Record:
         self.phone = ''
         self.email = ''
         self.birthday = ''
-        self.notes = {} # dict of note {tag: note}
+        self.notes = {}  # dict of note {tag: note}
 
     def __str__(self):
         return f'Contact name: {self.name.value}, phone: {self.phone}'
@@ -98,7 +98,7 @@ class Record:
         self.birthday = Birthday(birthday)
 
     def add_note(self, key, notes):
-        self.notes = Notes(key, notes)
+        self.notes[key] = Notes(key, notes)
 
 
 class AddressBook(UserDict):
