@@ -2,6 +2,7 @@ from address_book import *
 from datetime import datetime, timedelta
 import pickle
 from pathlib import Path
+from thefuzz import process
 
 
 def parse_input(user_input):
@@ -426,7 +427,18 @@ def main():
     while True:
         try:
             user_input = input('Enter a command: ')
-            command, *args = parse_input(user_input)
+            command_input, *args = parse_input(user_input)
+            command = ""
+
+            # thefuzz
+            choices = ['close', 'exit', 'hello', 'add', 'phone', 'all', 'show-birthday', 'birthdays', 'help', 'find']
+            fuzz_command = process.extractOne(command_input, choices=choices, score_cutoff=60)
+            if fuzz_command is not None:
+                command = fuzz_command[0]
+                if int(fuzz_command[1]) < 100:
+                    confirmation = input(f'Did you mean "{fuzz_command[0]}"? [Y/N]\n').lower()
+                    if confirmation != 'y':
+                        command = None
 
             if command in ['close', 'exit']:
                 print('Goodbye!')
