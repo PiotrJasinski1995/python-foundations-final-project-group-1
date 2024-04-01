@@ -53,14 +53,10 @@ def input_error(func):
 
 
 @input_error
-def add_contact(args, contacts):  # add contact by add command and only 1 argument [name]
+def add_contact(args, contacts):
     (name,) = args
-    # if len(args) == 0:
-    #     return 'Please, enter a name of contact, which you want to add!'
-    # name = args[0]
     contact = Record(name)
 
-    # phone number
     while True:
         input_phone = input('Enter phone number (0: exit, ENTER: skip current):\n')
         if input_phone in ['0']:
@@ -69,14 +65,13 @@ def add_contact(args, contacts):  # add contact by add command and only 1 argume
         elif input_phone == '':
             print('Phone number omitted!')
             break
-        else:  # if phone number is not empty
+        else:
             try:
                 contact.add_phone(input_phone)
                 break
             except PhoneFormatException:
                 print('Number should contain 10 digits!')
 
-    # email
     while True:
         input_email = input('Enter email (0: exit, ENTER: skip current):\n')
         if input_email in ['0']:
@@ -85,14 +80,13 @@ def add_contact(args, contacts):  # add contact by add command and only 1 argume
         elif input_email == '':
             print('Email omitted!')
             break
-        else:  # if email is not empty
+        else:
             try:
                 contact.add_email(input_email)
                 break
             except EmailFormatException:
                 print('Wrong email address format!')
 
-    # add address
     while True:
         input_address = input('Enter address (0: exit, ENTER: skip current):\n')
         if input_address in ['0']:
@@ -101,11 +95,10 @@ def add_contact(args, contacts):  # add contact by add command and only 1 argume
         elif input_address == '':
             print('Address omitted!')
             break
-        else:  # if address is not empty
+        else:
             contact.add_address(input_address)
             break
 
-    # birthday
     while True:
         input_birthday = input('Enter date of birthday in format YYYY-MM-DD (0: exit, ENTER: skip current):\n')
         if input_birthday in ['0']:
@@ -114,14 +107,13 @@ def add_contact(args, contacts):  # add contact by add command and only 1 argume
         elif input_birthday == '':
             print('Birthday omitted!')
             break
-        else:  # if birthday is not empty
+        else:
             try:
                 contact.add_birthday(input_birthday)
                 break
             except DateFormatException:
                 print('Date should be given in YYYY-MM-DD format!')
 
-    # note
     while True:
         input_note = input('Enter a note (0: exit, ENTER: skip current):\n')
         if input_note in ['0']:
@@ -131,13 +123,11 @@ def add_contact(args, contacts):  # add contact by add command and only 1 argume
             print('Note omitted!')
             break
         else:
-            input_tag = input('Enter a tag:\n')
+            input_tag = check_tag()
             contact.add_note(input_tag, input_note)
             break
 
-    # add contact to contacts
     contacts.add_record(contact)
-    # save_address_book(contacts)
 
     return 'Contact added.'
 
@@ -151,14 +141,6 @@ def get_all(args, contacts):
         return 'No contacts in phonebook!!!'
 
     return get_phonebook_list(contacts)
-
-
-@input_error
-def add_birthday(args, contacts):
-    name, birthday = args
-    contacts[name].birthday = Birthday(birthday)
-
-    return f'Birthday for {name} added.'
 
 
 def get_birthdays(args, contacts):
@@ -245,8 +227,7 @@ def help():
     return help_text
 
 
-# print one contact
-def print_contact(contact):
+def print_contact(contact, alphabetical=True):
     print('Name: ', str(contact.name), ' | ', end='')
     print('Address: ', str(contact.address), ' | ', end='')
     print('Phone: ', str(contact.phone), ' | ', end='')
@@ -254,62 +235,49 @@ def print_contact(contact):
     print('Birthday: ', str(contact.birthday), ' | ')
     print('Notes:')
 
+    reverse_flag = False if alphabetical else True
+
     if contact.notes:
-        for count, note in enumerate(contact.notes, 1):
-            note_text = f'{str(f'{count})').ljust(3)} {note.ljust(15)} {contact.notes[note]}'
+        notes_dict = dict(sorted(contact.notes.items(), key=lambda item: item[0], reverse=reverse_flag))
+        for count, note in enumerate(notes_dict, 1):
+            note_text = f'\t{str(f'{count})').ljust(3)} {note.ljust(15)} {contact.notes[note]}'
             print(note_text)
     else:
         print('No notes for this contact')
     print('')
 
 
-# add find function
 @input_error
 def find(args, contacts):
-    # if args is empty return warning
     if len(args) == 0:
         return 'Please, enter a value to find! I don\'t know what to look for!'
-    # if args is not empty
     else:
-        # get the value from args
-        value = args[0]
-        print('Searched phrase: ', value)
-        # Iterate through contacts
+        (value,) = args
+        print('Searched phrase: ', value, '\n')
         map_id_to_index_dict = {}
         found_contacts = {}
         for key in contacts:
-            # if value is in name
-            if str(contacts[key].name) == value:  # if value is '' then error
+            if str(contacts[key].name) == value:
                 found_contacts[key] = contacts[key]
 
-            # if value is in address
             if str(contacts[key].address) == value:
                 found_contacts[key] = contacts[key]
 
-            # if value is in phone
             if str(contacts[key].phone) == value:
                 found_contacts[key] = contacts[key]
 
-            # if value is in email
             if str(contacts[key].email) == value:
                 found_contacts[key] = contacts[key]
 
-            # if value is in birthday
             if str(contacts[key].birthday) == value:
                 found_contacts[key] = contacts[key]
-
-            # if value is in note
-            # if hasattr(contacts[key], 'notes'):
-            #     if contacts[key].notes != {}:
-            #         for note in contacts[key].notes.values():
-            #             if value in note.tag or value in note.note:
-            #                 found_contacts[key] = contacts[key]
             
             if contacts[key].notes:
-                if value in contacts[key].notes or value in contacts[key].notes.values():
+                notes_string = ' '.join([note.value for note in contacts[key].notes.values()])
+
+                if value in contacts[key].notes or value in notes_string:
                     found_contacts[key] = contacts[key]
 
-        # print what was found
         count = 0
         for key in found_contacts:
             count += 1
@@ -317,19 +285,23 @@ def find(args, contacts):
             if len(found_contacts) < 2:
                 continue
             print(count, end=") ")
-            print_contact(found_contacts[key])
+            print_contact(found_contacts[key], alphabetical=True)
 
         if count == 0:
             return 'No contacts found.'
         elif count >= 1:
-            user_key = 1  # przypisz wartość 1 - wybór pierwszego/jedynego kontaktu
+            user_key = 1
             if count > 1:
-                user_key = int(input('Which contact do you want to edit/remove? or 0: Exit '))
+                while True:
+                    user_key = int(input('Which contact do you want to edit/remove? or 0: Exit\n'))
 
-                if int(user_key) not in list(range(0, len(found_contacts))):
-                    return 'You have chosen wrong number!'
+                    if int(user_key) in list(range(len(found_contacts) + 1)):
+                        break
+                    else:
+                        print('You have chosen wrong number!')
+            
+            alphabetical = True
 
-            # Loop - what to do with found contacts
             while True:
                 if user_key == 0:
                     break
@@ -337,83 +309,57 @@ def find(args, contacts):
                 user = map_id_to_index_dict[user_key]
                 if count > 1:
                     print(f'You\'ve chosen: ', end=' ')
-                else:
-                    print('Contact:')
-                print_contact(found_contacts[user])
 
-                operation = input('What do you want to do with this contact?\n'
-                                  '0: Exit | 1: Change record | 2: Remove record | '
-                                  '3: Remove data from record | 4: Add new note\n')
+                print_contact(found_contacts[user], alphabetical=alphabetical)
+
+                sort_text = ''
+                option_amount = 4
+                alphabetical_text_addition = 'un' if alphabetical == True else ''
+
+                if len(contacts[user].notes) > 1:
+                    sort_text = f' | 5: Sort notes {alphabetical_text_addition}alphabetical\n'
+                    option_amount += 1
+
+                while True:
+                    operation = input('What do you want to do with this contact?\n'
+                                    '0: Exit | 1: Change record | 2: Remove record | '
+                                    f'3: Remove data from record | 4: Add new note{sort_text}\n')
+                    
+                    if int(operation) in list(range(option_amount + 1)):
+                        break
+                    else:
+                        print('You have chosen wrong number!')
 
                 if operation in ['0', '']:
                     break
                 elif operation == '1':
                     change_fields(user, found_contacts, option='change')
-                    # operation = input('What field do you want to change?\n'
-                    #                   '0: Exit | 1: Name | 2: Address | 3: Phone | '
-                    #                   '4: Email | 5: Birthday | 6: Note\n')
-                    # question = input('Provide a new value for the field: ')
-                    # if operation in ['0', '']:
-                    #     break
-                    # elif operation == '1':
-                    #     contacts[user].name = Name(question)
-                    # elif operation == '2':
-                    #     contacts[user].address = Address(question)
-                    # elif operation == '3':
-                    #     contacts[user].phone = Phone(question)
-                    # elif operation == '4':
-                    #     contacts[user].email = Email(question)
-                    # elif operation == '5':
-                    #     contacts[user].birthday = Birthday(question)
-                    # elif operation == '6':
-                    #     note_key = input('Provide a tag for the note: ')
-                    #     if contacts[user].notes.get(note_key):
-                    #         contacts[user].notes[note_key].note = question
-                    #     else:
-                    #         print("Note with provided tag does not exist.")
-                    #         continue
-                    # print("Field changed.")
                 elif operation == '2':
                     del contacts[user]
                     print("Record deleted.")
                     break
                 elif operation == '3':
                     change_fields(user, found_contacts, option='remove')
-                #     question = input('What field do you want to remove?\n'
-                #                      '0: Exit | 1: Address | 2: Phone | '
-                #                      '3: Email | 4: Birthday | 5: Note\n')
-                #     if question in ['0', '']:
-                #         break
-                #     elif question == '1':
-                #         contacts[user].address.value = ""
-                #     elif question == '2':
-                #         contacts[user].phone.value = ""
-                #     elif question == '3':
-                #         contacts[user].email.value = ""
-                #     elif question == '4':
-                #         contacts[user].birthday.value = ""
-                #     elif question == '5':
-                #         note_key = input('Provide a tag for the note: ')
-                #         if contacts[user].notes.get(note_key):
-                #             contacts[user].notes.pop(note_key)
-                #         else:
-                #             print("Note with provided tag does not exist.")
-                #             continue
-                #     print("Field removed.")
                 elif operation == '4':
                     input_note = input('Enter a note:\n')
-                    input_tag = input('Enter a tag:\n')
+                    input_tag = check_tag()
                     contacts[user].add_note(input_tag, input_note)
+                elif operation == '5':
+                    alphabetical = not alphabetical
 
         return "Done"
     
 
-# end find function________________________
-@input_error
 def change_fields(user, contacts, option='remove'):
-    operation = input(f'What field do you want to {option}?\n'
-                    '0: Exit | 1: Name | 2: Address | 3: Phone | '
-                    '4: Email | 5: Birthday | 6: Note\n')
+    while True:
+        operation = input(f'What field do you want to {option}?\n'
+        '0: Exit | 1: Name | 2: Address | 3: Phone | '
+        '4: Email | 5: Birthday | 6: Note\n')
+        
+        if int(operation) in list(range(7)):
+            break
+        else:
+            print('You have chosen wrong number!')
     
     operation_number = int(operation)
     
@@ -423,34 +369,51 @@ def change_fields(user, contacts, option='remove'):
     if operation in ['0', '']:
         return -1
     elif operation_number in list(range(1, 6)):
-        question = ''
+        while True:
+            question = ''
 
-        if option == 'change':
-            question = input(f'Provide a new value for the {fields[operation_number]}: ')
+            if option == 'change':
+                question = input(f'Provide a new value for the {fields[operation_number]}: ')
+            
+            if operation_number == 1:
+                setattr(contacts[user], fields[operation_number], dispatch_dict[fields[operation_number]](question))
+                break
+            else:
+                func_name = 'add_' + fields[operation_number]
+                func = getattr(contacts[user], func_name)
 
-        setattr(contacts[user], fields[operation_number], dispatch_dict[fields[operation_number]](question))
+                try:
+                    func(question)
+                except PhoneFormatException:
+                    print('Number should contain 10 digits!')
+                except EmailFormatException:
+                    print('Wrong email address format!')
+                else:
+                    break 
     elif operation == '6':
         notes_dict = {}
         found_notes = contacts[user].notes
-
+        note_text = ''
         count = len(found_notes)
+
+        for count, key in enumerate(found_notes, 1):
+            notes_dict[count] = key
+            note_text = f'\t{(str(count) + ')').ljust(3)} {key.ljust(15)} {found_notes[key]}'
+            print(note_text)
 
         if count == 1:
             user_key = 1
         elif count > 1:
-            user_key = int(input(f'Which note do you want to {option}? or 0: Exit\n'))
+            note_question = f'Which note do you want to {option}? or 0: Exit\n'
 
-        for count, key in enumerate(found_notes, 1):
-            notes_dict[count] = key
-            note_text = f'{(str(count) + ')').ljust(3)} {key.ljust(15)} {found_notes[key]}'
-            print(f'{note_text}')
-               
+            while True:
+                user_key = int(input(f'{note_question}'))     
 
-        if int(user_key) not in list(range(1, len(found_notes) + 1)):
-            return "You have chosen wrong number!"
-        
-        ##############################################################################################################################
-        # Loop - what to do with found notes
+                if int(user_key) in list(range(len(found_notes) + 1)):
+                    break
+                else:
+                    print("You have chosen wrong number!")
+
         while True:
             if user_key == 0:
                 break
@@ -463,29 +426,47 @@ def change_fields(user, contacts, option='remove'):
 
             if option == 'change':
                 additional_note_question_text = '0: Exit | 1: Change tag | 2: Change note \n'
-                note_operation = input(f'What do you want to do with this note?\n{additional_note_question_text}')         
 
+                while True:
+                    note_operation = input(f'What do you want to do with this note?\n{additional_note_question_text}')   
+                    if int(note_operation) in list(range(3)):
+                        break
+                    else:
+                        print("You have chosen wrong number!")
+                          
             if option == 'remove':
                 note_operation = '3'
          
-
             if note_operation in ['0', '']:
                 break
             elif note_operation == '1':
-                new_tag = input('Provide new tag for note')
+                new_tag = check_tag()
                 actual_note = contacts[user].notes[note]
                 contacts[user].notes.pop(note)
                 contacts[user].notes[new_tag] = actual_note
                 break
             elif note_operation == '2':
-                new_note = input('Provide new value for note')
+                new_note = input('Provide new value for note: ')
                 contacts[user].notes[note] = new_note
                 break
             elif note_operation == '3':
                 contacts[user].notes.pop(note)
                 break
             
-    print(f'Field {option}d.')
+    
+    print(f'Field {option} done.')
+
+
+def check_tag():
+    while True:
+        tag = input('Enter a tag:\n')
+        
+        if len(tag.split(' ')) != 1:
+            print('Tag should be one word!')
+        elif tag == '':
+            print('Tag cannot be empty!')
+        else:
+            return tag
 
 
 def main():
@@ -497,8 +478,6 @@ def main():
             user_input = input('Enter a command: ')
             command_input, *args = parse_input(user_input)
             command = ""
-
-            # thefuzz
             choices = ['close', 'exit', 'hello', 'add', 'phone', 'all', 'show-birthday', 'birthdays', 'help', 'find']
             fuzz_command = process.extractOne(command_input, choices=choices, score_cutoff=60)
             if fuzz_command is not None:
