@@ -1,4 +1,4 @@
-from address_book import *
+from .address_book import *
 from datetime import datetime, timedelta
 import pickle
 from pathlib import Path
