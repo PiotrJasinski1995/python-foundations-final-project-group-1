@@ -6,7 +6,7 @@ long_description = "The Best of Boots: 'BMP' - an address book application"
 
 setup(
     name='BMPboot',
-    version='3.3',
+    version='3.4',
     install_requires=[
         'thefuzz',
     ],

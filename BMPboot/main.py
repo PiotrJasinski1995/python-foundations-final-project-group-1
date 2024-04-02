@@ -352,9 +352,14 @@ def find(args, contacts):
 
 def change_fields(user, contacts, option='remove'):
     while True:
+        note_text = ''
+        if len(contacts[user].notes) > 0:
+            note_text += '| 6: Note'
+
+            
         operation = input(f'What field do you want to {option}?\n'
         '0: Exit | 1: Name | 2: Address | 3: Phone | '
-        '4: Email | 5: Birthday | 6: Note\n')
+        f'4: Email | 5: Birthday {note_text}\n')
         
         if int(operation) in list(range(7)):
             break
@@ -380,17 +385,20 @@ def change_fields(user, contacts, option='remove'):
                 break
             else:
                 func_name = 'add_' + fields[operation_number]
-                func = getattr(contacts[user], func_name)
 
                 try:
-                    func(question)
+                    if option == 'change':
+                        func = getattr(contacts[user], func_name)
+                        func(question)
+                    else:
+                        setattr(contacts[user], fields[operation_number], '')                  
                 except PhoneFormatException:
                     print('Number should contain 10 digits!')
                 except EmailFormatException:
                     print('Wrong email address format!')
                 else:
                     break 
-    elif operation == '6':
+    elif operation == '6' and len(contacts[user].notes) > 0:
         notes_dict = {}
         found_notes = contacts[user].notes
         note_text = ''
