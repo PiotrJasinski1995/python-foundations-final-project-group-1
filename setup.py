@@ -1,11 +1,12 @@
 from setuptools import setup, find_packages
 
-with open("BMPboot/README.md", "r", encoding="utf-8") as fh:
-    long_description = fh.read()
+# with open("README.md", "r", encoding="utf-8") as fh:
+    #long_description = fh.read()
+long_description = "The Best of Boots: 'BMP' - an address book application"
 
 setup(
     name='BMPboot',
-    version='3.2',
+    version='3.3',
     install_requires=[
         'thefuzz',
     ],
