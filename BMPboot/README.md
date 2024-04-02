@@ -5,6 +5,7 @@ Address Book Assistant is a simple program for managing an address book, written
 ## Table of Contents
 
 - [Description](#description)
+- [Install Package](#install)
 - [Usage Instructions](#usage-instructions)
 - [Examples](#examples)
 - [Requirements](#requirements)
@@ -13,6 +14,17 @@ Address Book Assistant is a simple program for managing an address book, written
 ## Description
 
 Address Book Assistant allows the user to add, search, browse, and manage contacts in an address book. The program supports various fields such as name, address, phone number, email, date of birth, and notes.
+
+## Install
+
+To install the package from pip, run the following command:
+pip install BMPboot
+Example of usage - it starts the program:
+
+from BMPboot import main
+
+main.main()
+{}
 
 ## Usage Instructions
 
@@ -61,3 +73,7 @@ The program was written by:
 - Piotr Jasiński
 - Michał Pokracki
 - Bartosz Zygmunt
+
+```
+
+```
