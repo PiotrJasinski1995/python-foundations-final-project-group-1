@@ -1,8 +1,11 @@
 from setuptools import setup, find_packages
 
+with open("BMPboot/README.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name='BMPboot',
-    version='3.1',
+    version='3.2',
     install_requires=[
         'thefuzz',
     ],
@@ -14,5 +17,8 @@ setup(
     author='Bartosz, Michał, Piotr',
     packages=find_packages(),
     description='The Best of Boots: "BMP" - an address book application',
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    author_email='it@bartoszzygmunt.pl',
     py_modules=['address_book'],
 )
