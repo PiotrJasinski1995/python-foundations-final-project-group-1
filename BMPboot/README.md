@@ -52,7 +52,7 @@ John | 1990-01-01
 
 ## Requirements
 
-To run the program, you need a Python 3.x interpreter and the library: thefuzz (pip install python-Levenshtein - it is a wrapper 'Levenshtein module'.
+To run the program, you need a Python 3.x interpreter and the library: thefuzz (pip install thefuzz'.
 
 ## Author
 
