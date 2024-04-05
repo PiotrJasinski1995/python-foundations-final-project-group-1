@@ -24,7 +24,6 @@ Example of usage - it starts the program:
 from BMPboot import main
 
 main.main()
-{}
 
 ## Usage Instructions
 

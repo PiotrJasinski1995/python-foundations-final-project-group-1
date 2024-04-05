@@ -208,10 +208,10 @@ def load_address_book():
 def help():
     commands = ['Command', '-' * 14, 'add', 'find', 'all', 'birthdays',
                 'hello', 'close or exit']
-    arguments = ['Arguments', '-' * 20, '[name] [phone]', 'field value', '[name]', '[days]', 'no arguments', 'no arguments']
+    arguments = ['Arguments', '-' * 20, '[name]', 'field value', '[name]', '[days]', 'no arguments', 'no arguments']
     texts = ['Help text',
              '-' * 10,
-             'Add a new contact with a name and phone number.',
+             'Add a new contact with a name.',
              'Find records based on specific fields [name/phone/email/address/birthday/tag/note].',
              'Show all contacts in the address book.',
              'Show birthdays that will take place within specified number of days from the current date.',
